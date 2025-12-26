@@ -1,0 +1,266 @@
+PARA TABLA CUSTOMERS:
+
+INSERT INTO Customers (CustomersID, ClientName, ContactNumber, Email, Address) VALUES
+(1, 'Juan Pérez', 123-456-7890, 'juan.perez@example.com', 'Calle 1, Ciudad viña del mar'),
+(2, 'María López', 234-567-8901, 'maria.lopez@example.com', 'Calle 2, Ciudad viña del mar'),
+(3, 'Carlos García', 345-678-9012, 'carlos.garcia@example.com', 'Calle 3, Ciudad quilpue'),
+(4, 'Ana Martínez', 456-789-0123, 'ana.martinez@example.com', 'Calle 4, Ciudad valparaiso'),
+(5, 'Luis Fernández', 567-890-1234, 'luis.fernandez@example.com', 'Calle 5, Ciudad valparaiso'),
+(6, 'Sofía Torres', 678-901-2345, 'sofia.torres@example.com', 'Calle 6, Ciudad valparaiso'),
+(7, 'Diego Ramírez', 789-012-3456, 'diego.ramirez@example.com', 'Calle 7, Ciudad quilpue'),
+(8, 'Laura Jiménez', 890-123-4567, 'laura.jimenez@example.com', 'Calle 8, Ciudad quilpue'),
+(9, 'Javier Morales', 901-234-5678, 'javier.morales@example.com', 'Calle 9, Ciudad viña del mar'),
+(10, 'Claudia Ruiz', 012-345-6789, 'claudia.ruiz@example.com', 'Calle 10, Ciudad viña del mar');
+
+PARA BOOKING:
+INSERT INTO Booking (BookingID, Date, TableNumber, NumberOfPeople, CustomersID) VALUES
+(1, '2023-09-01', 1, 2, 1),
+(2, '2023-09-02', 2, 4, 2),
+(3, '2023-09-03', 3, 3, 3),
+(4, '2023-09-04', 4, 5, 4),
+(5, '2023-09-05', 5, 6, 5),
+(6, '2023-09-06', 6, 2, 6),
+(7, '2023-09-07', 7, 4, 7),
+(8, '2023-09-08', 8, 3, 8),
+(9, '2023-09-09', 9, 5, 9),
+(10, '2023-09-10', 10, 6, 10);
+
+
+PARA ORDERS:
+
+INSERT INTO Orders (OrdersID, OrderDate, Quantity, TotalCost, PaymentMethod, BookingID, MenuID, Customers_CustomersID) VALUES
+(1, '2023-10-01', 2, 100.00, 'Credit Card', 1, 1, 1),
+(2, '2023-10-02', 1, 100.00, 'Cash', 2, 2, 2),
+(3, '2023-10-03', 3, 150.00, 'Debit Card', 3, 3, 3),
+(4, '2023-10-04', 1, 150.00, 'Credit Card', 4, 4, 4),
+(5, '2023-10-05', 2, 300.00, 'Cash', 5, 4, 5),
+(6, '2023-10-06', 4, 400.00, 'Debit Card', 6, 2, 6),
+(7, '2023-10-07', 5, 250.00, 'Credit Card', 7, 1, 7),
+(8, '2023-10-08', 6, 300.00, 'Cash', 8, 2, 8),
+(9, '2023-10-09', 5, 500.00, 'Debit Card', 9, 3, 9),
+(10, '2023-10-10', 2, 100.00, 'Credit Card', 10, 1, 10);
+
+PARA MENUItems:
+
+INSERT INTO MenuItems (MenuItemsID, CourseName, StarterName, DessertName, DrinksName) VALUES
+(1, 'Tacos', 'Guacamole', 'Churros', 'Agua de Jamaica'),
+(2, 'Enchiladas', 'Queso Fundido', 'Flan', 'Tequila Sunrise'),
+(3, 'Fried Rice', 'Spring Rolls', 'Mango Sticky Rice', 'Bubble Tea'),
+(4, 'Kung Pao Chicken', 'Dumplings', 'Mango Pudding', 'Jasmine Tea');
+
+
+PARA MENUS:
+
+INSERT INTO Menu (MenuID, MenuItemsID, MenuName, Cuisine, Price) VALUES
+(1, 1, 'Taco Platter', 'Mexicana', 50.00),
+(2, 2, 'Enchilada Combo', 'Mexicana', 100.00),
+(3, 3, 'Fried Rice Special', 'China', 50.00),
+(4, 4, 'Kung Pao Chicken Meal', 'China', 150.00);
+
+
+
+
+
+
+JOIN ENTRE 3 TABLAS BUSCANDO COSTO SOBRE 150:
+
+SELECT 
+    c.CustomersID, 
+    c.ClientName AS fullName, 
+    o.OrdersID, 
+    o.TotalCost, 
+    m.Starter, 
+    m.Course
+FROM 
+    Customers c
+JOIN 
+    Orders o ON c.CustomersID = o.Customers_CustomersID
+JOIN 
+    Menu m ON o.MenuID = m.MenuID
+WHERE 
+    o.TotalCost > 150
+ORDER BY 
+    o.TotalCost ASC;
+
+
+Creación de una sentencia preparada
+Una sentencia preparada en MySQL es esencialmente una plantilla que se crea con una sentencia SQL que incluye ciertos valores no especificados que se utilizan como parámetros. 
+
+En el siguiente ejemplo, estos valores están etiquetados con un signo de interrogación "?" que representa cuatro parámetros que se pueden insertar en la tabla:
+
+         PREPARE statement_Name 'INSERT INTO table1 VALUES (?, ?, ?, ?)';
+
+Para llamar a la sentencia preparada, debe utilizar el comando de ejecución de la siguiente manera:
+         EXECUTE statement_name USING @variable;
+
+CREAREMOS UN PROCEDIMIENTO donde obtendremos la máxima cantidad de pedidos:
+
+DELIMITER //
+
+CREATE PROCEDURE GetMaxQuantity()
+BEGIN
+    SELECT MAX(quantity) AS MaxQuantity
+    FROM Orders;
+END //
+
+DELIMITER ;
+
+
+Para crear una sentencia preparada llamada GetOrderDetail que acepte un argumento de entrada CustomerID y devuelva el id del pedido, la cantidad y el coste del pedido de la tabla "Pedidos" (Orders), puedes seguir estos pasos:
+
+SET @CustomerID = 1;  -- Asignar el valor a la variable
+
+SET @CustomerID = 1; 
+
+PREPARE GetOrderDetail FROM 
+'SELECT OrdersID, Quantity, TotalCost 
+ FROM Orders 
+ WHERE Customers_CustomersID = ?';
+
+
+
+```sql
+CALL CancelOrder(1);
+```
+
+OTRO PROCEDIMIENTO:
+
+DELIMITER //
+
+CREATE PROCEDURE CancelOrder(IN OrdersID INT)
+BEGIN
+    DELETE FROM Orders
+    WHERE id = OrdersID;
+END //
+
+DELIMITER ;
+
+
+CALL CancelOrder(1);  #no ejecutar para no perder un registro
+#este procedimiento cancela una orden cuando desee solo usando el ID de la orden
+
+insertamos nuevas reservas:
+INSERT INTO booking (BookingID, Date, TableNumber, NumberOfPeople, CustomersID) VALUES
+(11, '2022-10-10', 5, 4, 1),
+(12, '2022-11-12', 3, 2, 2),
+(13, '2022-10-11', 2, 3, 3),
+(14, '2022-10-13', 2, 6, 4);
+
+
+Para su tercera y última tarea, Little Lemon necesita verificar una reserva y rechazar cualquier reserva para mesas que ya estén reservadas con otro nombre. 
+
+Dado que la integridad no es opcional, Little Lemon necesita asegurarse de que cada intento de reserva incluya estos pasos de verificación y rechazo. Sin embargo, la implementación de estos pasos requiere un procedimiento almacenado y una transacción. 
+
+Para implementar estos pasos, necesita crear un nuevo procedimiento llamado AddValidBooking. Este procedimiento debe utilizar una sentencia de transacción para realizar una reversión si un cliente reserva una mesa que ya está reservada con otro nombre.  
+
+Utilice las siguientes directrices para completar esta tarea:
+
+El procedimiento debe incluir dos parámetros de entrada en forma de fecha de reserva y número de mesa.
+
+También requiere al menos una variable y debe comenzar con una sentencia START TRANSACTION.
+
+Su sentencia INSERT debe añadir un nuevo registro de reserva utilizando los valores de los parámetros de entrada.
+
+Utilice una sentencia IF ELSE para comprobar si una mesa ya está reservada en la fecha dada. 
+
+Si la tabla ya está reservada, deshaga la transacción. Si la mesa está disponible, confirme la transacción.:
+
+
+DELIMITER //
+
+CREATE PROCEDURE AddValidBooking(IN Date DATE, IN tableNumber INT)
+BEGIN
+    DECLARE tableStatus INT;
+
+    START TRANSACTION;
+
+     #Comprobar si la mesa ya está reservada
+    SELECT COUNT(*) INTO tableStatus
+    FROM Reservas
+    WHERE BookingDate = bookingDate AND TableNumber = tableNumber;
+
+    IF tableStatus > 0 THEN
+        -- La mesa ya está reservada, deshacer la transacción
+        ROLLBACK;
+        SELECT 'Reserva cancelada: la mesa ya está reservada.' AS Status;
+    ELSE
+        -- La mesa está disponible, realizar la reserva
+        INSERT INTO Reservas (BookingDate, TableNumber) VALUES (bookingDate, tableNumber);
+        COMMIT;
+        SELECT 'Reserva confirmada.' AS Status;
+    END IF;
+END //
+
+DELIMITER ;
+
+
+Tarea 1
+En esta primera tarea debe crear un nuevo procedimiento llamado AddBooking para añadir un nuevo registro de reserva en la tabla.
+
+El procedimiento debe incluir cuatro parámetros de entrada en forma de los siguientes parámetros de reservas
+
+id de reserva, 
+
+id de cliente, 
+
+fecha de reserva
+
+y número de mesa.
+
+DELIMITER //
+
+CREATE PROCEDURE Booking (
+    IN BookingID INT,
+    IN Date DATE,
+    IN TableNumber INT,
+    IN NumberOfPeople INT,
+    IN CustomersID INT
+)
+BEGIN
+    INSERT INTO Booking (BookingID, Date, TableNumber, NumberOfPeople,CustomersID)
+    VALUES (BookingID, Date, TableNumber, NumberOfPeople,CustomersID);
+END //
+
+DELIMITER ;
+
+
+Tarea 2
+Para su segunda tarea, Little Lemon necesita que cree un nuevo procedimiento llamado UpdateBooking que puedan utilizar para actualizar las reservas existentes en la tabla de reservas.
+
+El procedimiento debe tener dos parámetros de entrada en forma de id de reserva y fecha de reserva. También debe incluir una sentencia UPDATE dentro del procedimiento. 
+
+La captura de pantalla siguiente muestra un ejemplo del procedimiento UpdateBooking en uso.
+
+DROP PROCEDURE IF EXISTS UpdateBooking;
+
+DELIMITER //
+
+CREATE PROCEDURE UpdateBooking (
+    IN p_booking_id INT,
+    IN p_booking_date DATE
+)
+BEGIN
+    UPDATE Booking
+    SET Date = p_booking_date
+    WHERE BookingID = p_booking_id;
+END //
+
+DELIMITER ;
+
+Tarea 3
+Para la tercera y última tarea, Little Lemon necesita que cree un nuevo procedimiento llamado CancelBooking que puedan utilizar para cancelar o eliminar una reserva.
+
+El procedimiento debe tener un parámetro de entrada en forma de id de reserva. También debe escribir una sentencia DELETE dentro del procedimiento.:
+DELIMITER //
+
+CREATE PROCEDURE CancelBooking (
+    IN p_booking_id INT
+)
+BEGIN
+    DELETE FROM Booking
+    WHERE BookingID = p_booking_id;
+END //
+
+DELIMITER ;
+
+Call CancelBooking(9)
